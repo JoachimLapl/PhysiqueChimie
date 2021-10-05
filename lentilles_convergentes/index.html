@@ -454,7 +454,7 @@ abs {
             if ((aͥiͣ - Math.abs(object.x)) * aͥiͣ  === 0){ 
                 ray3n.setAttribute('d',`M ${mid.x + object.x},0 V ${mid.y - object.height}`)
                 ray3p.setAttribute('d',`M ${mid.x + object.x},${mid.y - object.height} V ${this.innerHeight}`)
-            } else if (!isNaN(Number(image.x)) && !isNaN(Number(image.y)) && object.x != 0) {
+            } else if (!isNaN(Number(image.x)) && !isNaN(Number(image.y)) && object.x !== 0) {
                 imageRes.setAttribute('d', 'M ' + (mid.x + image.x) + ',' + mid.y + ' v ' + -image.y);
                 Ap.setAttribute('x', mid.x + image.x + rate); Ap.setAttribute('y', mid.y - rate);
                 Bp.setAttribute('x', mid.x + image.x + rate); Bp.setAttribute('y', mid.y - image.y - rate);
@@ -674,7 +674,7 @@ abs {
         foyerImage.onmousedown = foyerObjet.onmousedown = e => {
             document.onmousemove = e => {
                 ƒ('html').style.cursor = foyerImage.style.cursor = foyerObjet.style.cursor = 'grabbing';
-                if (e.x - mid.x != 0)
+                if (e.x - mid.x !== 0)
                     aͥiͣ = Math.abs(e.x - mid.x);
                 ꓩ()
             }
@@ -705,7 +705,7 @@ abs {
         var disp = document.querySelectorAll('[display]');
         for (dis of disp) dis.onmousedown = e => {
             var element = e.target
-            while (!element.hasAttribute('display') && !element.tagName != 'HTML')
+            while (!element.hasAttribute('display') && !element.tagName !== 'HTML')
                 element = element.parentElement;
             if (e.target.hasAttribute('remove'))
                 element.style.display = 'none';
