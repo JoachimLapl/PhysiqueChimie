@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Lentilles convergents</title>
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon">
+    <link rel="icon" size="192x192">
+    <style>
+:root{--text-size:1px;}*{margin:0;overflow:hidden;}svg{height:100vh;width:100vw;}[axeOptique]{stroke-dasharray:5;marker-end:url(#ArrowRight);stroke:#000;fill:none;}
+[lentille]{stroke-width:1;
+    marker-end: url(#ArrowRight);
+    marker-start: url(#ArrowLeft);
+    stroke: #000;
+    fill: none;
+}
+[object],
+[image] {
+    marker-end: url(#ArrowRightSmall);
+    stroke: #000;
+    fill: none;
+    stroke-width: 1.5;
+}
+[object] {
+    cursor: grab;
+}
+[ray] {
+    stroke-width: 1;
+    fill: none;
+}
+[ray='1'] {
+    marker-mid: url(#Vector1);
+    stroke: #f00;
+}
+[ray='2'] {
+    marker-mid: url(#Vector2);
+    stroke: #0f0;
+}
+[ray='3'] {
+    marker-mid: url(#Vector3);
+    stroke: #00f;
+}
+[ray][h] {
+    opacity: .5;
+    stroke-dasharray: 3;
+    stroke-width: .75;
+}
+#Vector1 path,
+#Vector2 path,
+#Vector3 path {
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+#Vector1 path {
+    stroke: #f00;
+}
+#Vector2 path {
+    stroke: #0f0;
+}
+#Vector3 path {
+    stroke: #00f;
+}
+[point] {
+    stroke-width: 1.2;
+    stroke: #000;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+[point][tag='F'],
+[point][tag="F'"] {
+    cursor: grab;
+}
+text {
+    font-size: var(--text-size);
+    user-select: none;
+}
+[display] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: max-content;
+    border-radius: .5vw;
+    background: transparent;
+    backdrop-filter: blur(3px);
+    box-shadow: .6vw .3vw .9vw grey;
+    font-size: 1.5vw;
+    cursor: grab;
+    user-select: none;
+}
+[display]>* {
+    display: block;
+    border-top: .1vw solid black;
+    padding: .2vw;
+}
+[display]>*:first-child {
+    border: none;
+}
+[display]>div>span {
+    font-size: 105%;
+    font-weight: 600;
+}
+[display]>[remove] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 2vw;
+    width: 2vw;
+    color: white;
+    background: #f00d;
+    opacity: 0;
+    transition: opacity .3s;
+    border: none;
+    text-align: center;
+    border-bottom-left-radius: 50%;
+    cursor: pointer;
+}
+[display]>[remove]:hover {
+    opacity: 1;
+}
+select {
+    font-size: inherit;
+    background: transparent;
+}
+[options] {
+    display: none;
+    cursor: pointer;
+    z-index: 99;
+}
+[options]>*:hover {
+    background: #aaa8;
+}
+[grabbing] {
+    cursor: grabbing !important;
+}
+frac {
+    display: inline-grid;
+}
+frac>den {
+    border-bottom: .05vw solid black;
+}
+frac>* {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* padding-left: 10%;
+ing-right: 10%;*/
+    font-size: 75%;
+}
+td>div {
+    display: flex;
+    align-items: center;
+}
+bracket {
+    display: flex;
+    align-items: center;
+}
+bracket::before {
+    content: '(';
+    height: 100%;
+    font-size: 150%;
+}
+bracket::after {
+    content: ')';
+    height: 100%;
+    font-size: 150%;
+}
+[equationsX],
+[equationsY],
+[equationsγ] {
+    display: none;
+}
+abs {
+    padding: 0 .5vmax 0 .5vmax;
+    border-left: .1vmax solid black;
+    border-right: .1vmax solid black;
+}
+    </style>
+</head>
+
+<body>
+    <svg>
+        <defs>
+            <marker id="Vector1" markerWidth="14" markerHeight="14" refX="7" refY="7" orient="auto">
+                <path d="M 2,2  l 10,5  l -10,5 " stroke="black" fill="none" />
+            </marker>
+            <marker id="Vector2" markerWidth="20" markerHeight="14" refX="10" refY="7" orient="auto">
+                <path d="M 2,2  l 10,5  l -10,5 " stroke="black" fill="none" />
+                <path d="M 7,2  l 10,5  l -10,5 " stroke="black" fill="none" />
+            </marker>
+            <marker id="Vector3" markerWidth="26" markerHeight="14" refX="13" refY="7" orient="auto">
+                <path d="M 2,2  l 10,5  l -10,5 " stroke="black" fill="none" />
+                <path d="M 7,2  l 10,5  l -10,5 " stroke="black" fill="none" />
+                <path d="M 12,2  l 10,5  l -10,5 " stroke="black" fill="none" />
+            </marker>
+            <marker id="ArrowLeft" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto">
+                <path d="M 8,0  l -8,4  l 8,4 " />
+            </marker>
+            <marker id="ArrowRight" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M 0,0  l 8,4  l -8,4 " />
+            </marker>
+            <marker id="ArrowRightSmall" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                <path d="M 0,0  l 4,2  l -4,2 " />
+            </marker>
+        </defs>
+        <g></g>
+        <path axeOptique movable=y />
+        <path lentille movable=x />
+        <path point movable=xy tag=F />
+        <path point movable=xy tag="O" />
+        <path point movable=xy tag="F'" />
+        <text id="F">F</text>
+        <text id="O">O</text>
+        <text id="Fp">F'</text>
+        <text id="A">A</text>
+        <text id="B">B</text>
+        <text id="Ap">A'</text>
+        <text id="Bp">B'</text>
+        <path ray=1 n movable=xy />
+        <path ray=2 n movable=xy />
+        <path ray=3 n movable=xy />
+        <path ray=1 p movable=xy />
+        <path ray=2 p movable=xy />
+        <path ray=3 p movable=xy />
+        <path ray=1 h movable=xy />
+        <!-- <path ray=2 h movable=xy /> -->
+        <path ray=3 h movable=xy />
+        <path object movable=xy />
+        <path image movable=xy />
+    </svg>
+    <div display valeurs>
+        <div title="abscisse de B">𝓍 = <span Ba></span> </div>
+        <div title="ordonnée de B">𝓎 = <span Bo></span> </div>
+        <div title="distance focale">ƒ' = <span foyerImage></span> </div>
+        <div title="abscisse de B'">𝓍' = <span Bza></span> </div>
+        <div title="ordonnée de B'">𝓎' = <span Bzo></span> </div>
+        <div title="grossissement">γ = <span Ntimes></span> </div>
+        <div remove onclick="this.parentElement.style.display='none'">&times;</div>
+    </div>
+    <div display equationsX>
+        <table>
+            <tr>
+                <td>𝓍'</td>
+                <td>
+                    <div>=&nbsp;
+                        <frac>
+                            <den>𝓍ƒ'</den>
+                            <num>ƒ'-|𝓍|</num>
+                        </frac>
+                    </div>
+                </td>
+                <td>
+                    <div>=&nbsp;
+                        <frac>
+                            <den><span eqXx></span>×<span distFoc></span></den>
+                            <num><span distFoc></span>-<span Xabs></span></num>
+                        </frac>
+                    </div>
+                </td>
+                <td>=&nbsp;<span xRes></span></td>
+            </tr>
+        </table>
+        <div remove onclick="this.parentElement.style.display='none'">&times;</div>
+    </div>
+    <div display equationsY>
+        <table>
+            <tr>
+                <td>𝓎' </td>
+                <td>
+                    <div>=&nbsp;
+                        <frac>
+                            <den>𝓎ƒ'</span></den>
+                            <num>ƒ'-|𝓍|</num>
+                        </frac>
+                    </div>
+                </td>
+                <td>
+                    <div>=&nbsp;
+                        <frac>
+                            <den><span eqYy></span>×<span distFoc></span></den>
+                            <num><span distFoc></span>-<span Xabs></span></num>
+                        </frac>
+                    </div>
+                </td>
+                <td>=&nbsp;<span yRes></span></td>
+            </tr>
+        </table>
+        <div remove onclick="this.parentElement.style.display='none'">&times;</div>
+    </div>
+    <div display equationsγ>
+        <table>
+            <tr>
+                <td>γ </td>
+                <td>
+                    <div>=&nbsp;
+                        <abs>
+                            <frac>
+                                <den>ƒ'</span></den>
+                                <num>ƒ'-|𝓍|</num>
+                            </frac>
+                        </abs>
+                    </div>
+                </td>
+                <td>
+                    <div>=&nbsp;
+                        <abs>
+                            <frac>
+                                <den><span distFoc></span></den>
+                                <num><span distFoc></span>-<span Xabs></span></num>
+                            </frac>
+                        </abs>
+                    </div>
+                </td>
+                <td>=&nbsp;<span γRes></span></td>
+            </tr>
+        </table>
+        <div remove onclick="this.parentElement.style.display='none'">&times;</div>
+    </div>
+    <div display options>
+        <div onclick="montrerEquations()">Afficher les équations</div>
+        <div onclick="montrerValeurs()">Afficher les valeurs</div>
+        <div>arrondir <select onchange="arrondir(this.value)">
+                <option value=".1">au dixième</option>
+                <option value=".01">au centième</option>
+                <option value=".001">au millième</option>
+                <option value=".0001">au millionième</option>
+                <option value=".000001">à la plus grande précision possible</option>
+            </select>
+        </div>
+        <div onclick="init();ꓩ();">Réinitialiser</div>
+    </div>
+    <script>
+        Object.defineProperties(Number.prototype, {
+            trunToPhysiqueNumber: {
+                value: function () {
+                    if (this / round === Infinity || this / round === -Infinity || isNaN(this / round))
+                        return this
+                    var anup = Math.round(this / round) + '';
+                    var l = 0
+                    if (round.toString().includes('.'))
+                        l = round.toString().split('.')[1].length
+                    return anup.slice(0, anup.length - l) + '.' + anup.slice(anup.length - l, anup.length)
+                }
+            }
+        });
+        var rate = 4;
+        var mid = {
+            x: Math.round(window.innerWidth / (20 * rate)) * 10 * rate,
+            y: Math.round(window.innerHeight / (20 * rate)) * 10 * rate,
+        }
+        var move = {
+            x: 0, y: 0
+        }
+        ƒ = s => { return document.querySelector(s) }
+        var svg = ƒ('svg'),
+            grid = ƒ('g'),
+            object = ƒ('[object]'),
+            imageRes = ƒ('[image]'),
+            lentille = ƒ('[lentille]'),
+            axeOptique = ƒ('[axeOptique]'),
+            foyerImage = ƒ(`[tag="F'"]`),
+            foyerObjet = ƒ(`[tag="F"]`),
+            centreOptique = ƒ(`[tag="O"]`),
+            F = ƒ(`[id="F"]`),
+            O = ƒ(`[id="O"]`),
+            Fp = ƒ(`[id="Fp"]`),
+            A = ƒ(`[id="A"]`),
+            B = ƒ(`[id="B"]`),
+            Ap = ƒ(`[id="Ap"]`),
+            Bp = ƒ(`[id="Bp"]`),
+            ray1n = ƒ(`[ray="1"][n]`),
+            ray2n = ƒ(`[ray="2"][n]`),
+            ray3n = ƒ(`[ray="3"][n]`),
+            ray1p = ƒ(`[ray="1"][p]`),
+            ray2p = ƒ(`[ray="2"][p]`),
+            ray3p = ƒ(`[ray="3"][p]`),
+            ray1h = ƒ(`[ray="1"][h]`),
+            // ray2h = ƒ(`[ray="2"][h]`),
+            ray3h = ƒ(`[ray="3"][h]`),
+            display = {
+                f: ƒ(`[foyerImage]`),
+                Bo: ƒ(`[Bo]`),
+                Ba: ƒ(`[Ba]`),
+                Bzo: ƒ(`[Bzo]`),
+                Bza: ƒ(`[Bza]`),
+                time: ƒ(`[Ntimes]`),
+            };
+        var round = .01
+        document.documentElement.style.setProperty('--text-size', 5 * rate + 'px')
+        // console.log(mid)
+        var aͥiͣ;
+        init = () => {
+            object.height = Math.round(mid.y / 20) * 10;
+            object.x = -Math.round(mid.x * 3 / 40) * 10;
+            aͥiͣ = Math.round(mid.x / (40 * rate)) * 10 * rate;
+        }
+        init()
+        var ray1Equation = x => {
+            if (x <= 0)
+                return object.height
+            else return -object.height / aͥiͣ * x * 10 * rate + object.height
+        }
+        var ray2Equation = x => {
+            return object.height / object.x * x * 10 * rate
+        }
+        var ray3Equation = x => {
+            if (x <= 0)
+                return object.height / (object.x + aͥiͣ) * x * 10 * rate + object.height / (object.x + aͥiͣ) * aͥiͣ
+            else return object.height / (object.x + aͥiͣ) * aͥiͣ
+        }
+        var image;
+        onload = onresize = ꓩ = () => {
+            var gridHTML = '';
+            for (x = 0; x < window.innerWidth; x += rate)
+                if (x % (rate * 10) == 0) gridHTML += '<line x1=' + x + ' y1=' + 0 + ' x2=' + x + ' y2=' + window.innerHeight + ' style="stroke:#1db5fe;stroke-width:1;"/>';
+                else gridHTML = '<line x1=' + x + ' y1=' + 0 + ' x2=' + x + ' y2=' + window.innerHeight + ' style="stroke:#88cfea;stroke-width:.5;"/>' + gridHTML;
+            for (y = 0; y < window.innerHeight; y += rate)
+                if (y % (rate * 10) == 0) gridHTML += '<line x1=' + 0 + ' y1=' + y + ' x2=' + window.innerWidth + ' y2=' + y + ' style="stroke:#1db5fe;stroke-width:1;"/>';
+                else gridHTML = '<line x1=' + 0 + ' y1=' + y + ' x2=' + window.innerWidth + ' y2=' + y + ' style="stroke:#88cfea;stroke-width:.5;"/>' + gridHTML;
+            grid.innerHTML = gridHTML;
+            mid = {
+                x: Math.round(window.innerWidth / (20 * rate)) * 10 * rate + move.x * 10 * rate,
+                y: Math.round(window.innerHeight / (20 * rate)) * 10 * rate + move.y * 10 * rate,
+            }
+            image = {
+                x: object.x / (aͥiͣ - Math.abs(object.x)) * aͥiͣ,
+                y: object.height / (aͥiͣ - Math.abs(object.x)) * aͥiͣ
+            }
+            display.Bo.innerHTML = ƒ(`[eqYy]`).innerHTML = (object.height / rate / 10).trunToPhysiqueNumber();
+            display.Ba.innerHTML = ƒ(`[eqXx]`).innerHTML = (object.x / rate / 10).trunToPhysiqueNumber();
+            display.Bzo.innerHTML = ƒ(`[yRes]`).innerHTML = (image.y / rate / 10).trunToPhysiqueNumber();
+            display.Bza.innerHTML = ƒ(`[xRes]`).innerHTML = (image.x / rate / 10).trunToPhysiqueNumber();
+            display.f.innerHTML = (aͥiͣ / rate / 10).trunToPhysiqueNumber();
+            display.time.innerHTML = ƒ(`[γRes]`).innerHTML = Math.abs(image.y / object.height).trunToPhysiqueNumber();
+            var focs = document.querySelectorAll('[distFoc]');
+            for (foc of focs) foc.innerHTML = display.f.innerHTML;
+            var AbsX = document.querySelectorAll('[Xabs]');
+            for (absx of AbsX) absx.innerHTML = Math.abs(object.x / rate / 10).trunToPhysiqueNumber()
+            // console.log(image)
+            lentille.setAttribute('d', 'M ' + mid.x + ',0 v ' + window.innerHeight);
+            axeOptique.setAttribute('d', 'M 0,' + mid.y + ' h ' + window.innerWidth);
+            object.setAttribute('d', 'M ' + (mid.x + object.x) + ',' + mid.y + ' v ' + -object.height);
+            var pointData = ' v ' + 2 * rate + ' v ' + -4 * rate + ' v ' + 2 * rate + ' h ' + 2 * rate + ' h ' + -4 * rate;
+            foyerImage.setAttribute('d', 'M ' + (mid.x + aͥiͣ) + ',' + mid.y + pointData);
+            foyerObjet.setAttribute('d', 'M ' + (mid.x - aͥiͣ) + ',' + mid.y + pointData);
+            centreOptique.setAttribute('d', 'M ' + mid.x + ',' + mid.y + pointData);
+            F.setAttribute('x', mid.x - aͥiͣ + rate); F.setAttribute('y', mid.y - rate);
+            O.setAttribute('x', mid.x + rate); O.setAttribute('y', mid.y - rate);
+            Fp.setAttribute('x', mid.x + aͥiͣ + rate); Fp.setAttribute('y', mid.y - rate);
+            A.setAttribute('x', mid.x + object.x + rate); A.setAttribute('y', mid.y - rate);
+            B.setAttribute('x', mid.x + object.x + rate); B.setAttribute('y', mid.y - object.height - rate);
+            // console.log(image)
+            if ((aͥiͣ - Math.abs(object.x)) * aͥiͣ  === 0){ 
+                ray3n.setAttribute('d',`M ${mid.x + object.x},0 V ${mid.y - object.height}`)
+                ray3p.setAttribute('d',`M ${mid.x + object.x},${mid.y - object.height} V ${this.innerHeight}`)
+            } else if (!isNaN(Number(image.x)) && !isNaN(Number(image.y)) && object.x != 0) {
+                imageRes.setAttribute('d', 'M ' + (mid.x + image.x) + ',' + mid.y + ' v ' + -image.y);
+                Ap.setAttribute('x', mid.x + image.x + rate); Ap.setAttribute('y', mid.y - rate);
+                Bp.setAttribute('x', mid.x + image.x + rate); Bp.setAttribute('y', mid.y - image.y - rate);
+                if (object.x > 0) {
+                    // console.log(object.x * aͥiͣ / (aͥiͣ - object.x), -aͥiͣ + aͥiͣ ** 2 / (aͥiͣ - object.x), 1 / (1 / object.x - 1 / aͥiͣ))
+                    var r1 = {
+                        P1: {
+                            x: window.innerWidth, y: mid.y - object.height
+                        },
+                        P2: {
+                            x: object.x / 2 + mid.x, y: mid.y - object.height
+                        },
+                        P3: {
+                            x: mid.x, y: mid.y - object.height
+                        },
+                        P4: {
+                            x: -Math.abs(image.x / 2) + mid.x, y: mid.y + object.height / aͥiͣ * Math.abs(image.x / 2) - object.height
+                        },
+                        P5: {
+                            x: 0, y: mid.y + object.height / aͥiͣ * mid.x - object.height
+                        },
+                    }
+                    ray1n.setAttribute('d', 'M ' + r1.P1.x + ',' + r1.P1.y + ' l ' + (r1.P2.x - r1.P1.x) + ',' + (r1.P2.y - r1.P1.y) + ' l ' + (r1.P3.x - r1.P2.x) + ',' + (r1.P3.y - r1.P2.y))
+                    ray1p.setAttribute('d', 'M ' + r1.P3.x + ',' + r1.P3.y + ' l ' + (r1.P4.x - r1.P3.x) + ',' + (r1.P4.y - r1.P3.y) + ' l ' + (r1.P5.x - r1.P4.x) + ',' + (r1.P5.y - r1.P4.y))
+                    var r2 = {
+                        P1: {
+                            x: window.innerWidth, y: mid.y - (object.height / object.x * (window.innerWidth - mid.x))
+                        },
+                        P2: {
+                            x: object.x / 2 + mid.x, y: mid.y - (object.height / 2)
+                        },
+                        P3: {
+                            x: mid.x, y: mid.y
+                        },
+                        P4: {
+                            x: -Math.abs(image.x / 2) + mid.x, y: mid.y + (object.height / object.x * Math.abs(image.x / 2))
+                        },
+                        P5: {
+                            x: 0, y: mid.y - (-object.height / object.x * mid.x)
+                        },
+                    }
+                    ray2n.setAttribute('d', 'M ' + r2.P1.x + ',' + r2.P1.y + ' l ' + (r2.P2.x - r2.P1.x) + ',' + (r2.P2.y - r2.P1.y) + ' l ' + (r2.P3.x - r2.P2.x) + ',' + (r2.P3.y - r2.P2.y))
+                    ray2p.setAttribute('d', 'M ' + r2.P3.x + ',' + r2.P3.y + ' l ' + (r2.P4.x - r2.P3.x) + ',' + (r2.P4.y - r2.P3.y) + ' l ' + (r2.P5.x - r2.P4.x) + ',' + (r2.P5.y - r2.P4.y))
+                    var r3 = {
+                        P1: {
+                            x: window.innerWidth, y: mid.y - (object.height / (object.x - aͥiͣ) * (window.innerWidth - mid.x) + (object.height / (aͥiͣ - object.x) * aͥiͣ))
+                        },
+                        P2: {
+                            x: object.x / 2 + mid.x, y: mid.y - (object.height / (object.x - aͥiͣ) * object.x / 2 + (object.height / (aͥiͣ - object.x) * aͥiͣ))
+                        },
+                        P3: {
+                            x: mid.x, y: mid.y - object.height / (aͥiͣ - object.x) * aͥiͣ
+                        },
+                        P4: {
+                            x: -Math.abs(image.x / 2) + mid.x, y: mid.y - object.height / (aͥiͣ - object.x) * aͥiͣ
+                        },
+                        P5: {
+                            x: 0, y: mid.y - object.height / (aͥiͣ - object.x) * aͥiͣ
+                        },
+                    }
+                    ray3n.setAttribute('d', 'M ' + r3.P1.x + ',' + r3.P1.y + ' l ' + (r3.P2.x - r3.P1.x) + ',' + (r3.P2.y - r3.P1.y) + ' l ' + (r3.P3.x - r3.P2.x) + ',' + (r3.P3.y - r3.P2.y))
+                    ray3p.setAttribute('d', 'M ' + r3.P3.x + ',' + r3.P3.y + ' l ' + (r3.P4.x - r3.P3.x) + ',' + (r3.P4.y - r3.P3.y) + ' l ' + (r3.P5.x - r3.P4.x) + ',' + (r3.P5.y - r3.P4.y))
+                    if (object.x < aͥiͣ) {
+                        ray1h.style.stroke = '#f00';
+                        // ray2h.style.stroke = '#0f0';
+                        ray3h.style.stroke = '#00f';
+                        var h1 = [
+                            { x: 0, y: mid.y + object.height / aͥiͣ * mid.x - object.height },
+                            { x: window.innerWidth, y: mid.y - (object.height / aͥiͣ * (window.innerWidth - mid.x) + object.height) }
+                        ]
+                        // var h2=[
+                        //     {x: 0, y: mid.y-object.height/object.x*(-mid.x)},
+                        //     {x: window.innerWidth, y: mid.y-object.height/object.x*(window.innerWidth-mid.x)}
+                        // ]
+                        var h3 = [
+                            { x: 0, y: mid.y - object.height / (aͥiͣ - object.x) * aͥiͣ },
+                            { x: window.innerWidth, y: mid.y - object.height / (aͥiͣ - object.x) * aͥiͣ }
+                        ]
+                        ray1h.setAttribute('d', 'M ' + h1[0].x + ',' + h1[0].y + ' l ' + (h1[1].x - h1[0].x) + ',' + (h1[1].y - h1[0].y))
+                        // ray2h.setAttribute('d', 'M ' + h2[0].x + ',' + h2[0].y + ' l ' + (h2[1].x - h2[0].x) + ',' + (h2[1].y - h2[0].y))
+                        ray3h.setAttribute('d', 'M ' + h3[0].x + ',' + h3[0].y + ' l ' + (h3[1].x - h3[0].x) + ',' + (h3[1].y - h3[0].y))
+                    } else {
+                        ray1h.style.stroke = /*ray2h.style.stroke =*/ ray3h.style.stroke = 'none';
+                    }
+                } else {
+                    var r1 = {
+                        P1: {
+                            x: 0, y: mid.y - ray1Equation(-mid.x)
+                        },
+                        P2: {
+                            x: object.x / 2 + mid.x, y: mid.y - ray1Equation(object.x / 2)
+                        },
+                        P3: {
+                            x: mid.x, y: mid.y - ray1Equation(0)
+                        },
+                        P4: {
+                            x: Math.abs(image.x / 2) + mid.x, y: mid.y - ray1Equation(Math.abs(image.x / 20 / rate))
+                        },
+                        P5: {
+                            x: window.innerWidth, y: mid.y - ray1Equation((window.innerWidth - mid.x) / 10 / rate)
+                        },
+                    }
+                    ray1n.setAttribute('d', 'M ' + r1.P1.x + ',' + r1.P1.y + ' l ' + (r1.P2.x - r1.P1.x) + ',' + (r1.P2.y - r1.P1.y) + ' l ' + (r1.P3.x - r1.P2.x) + ',' + (r1.P3.y - r1.P2.y))
+                    ray1p.setAttribute('d', 'M ' + r1.P3.x + ',' + r1.P3.y + ' l ' + (r1.P4.x - r1.P3.x) + ',' + (r1.P4.y - r1.P3.y) + ' l ' + (r1.P5.x - r1.P4.x) + ',' + (r1.P5.y - r1.P4.y))
+                    var r2 = {
+                        P1: {
+                            x: 0, y: mid.y - ray2Equation(-mid.x / 10 / rate)
+                        },
+                        P2: {
+                            x: object.x / 2 + mid.x, y: mid.y - ray2Equation(object.x / 20 / rate)
+                        },
+                        P3: {
+                            x: mid.x, y: mid.y - ray2Equation(0)
+                        },
+                        P4: {
+                            x: Math.abs(image.x / 2) + mid.x, y: mid.y - ray2Equation(Math.abs(image.x / 20 / rate))
+                        },
+                        P5: {
+                            x: window.innerWidth, y: mid.y - ray2Equation((window.innerWidth - mid.x) / 10 / rate)
+                        },
+                    }
+                    ray2n.setAttribute('d', 'M ' + r2.P1.x + ',' + r2.P1.y + ' l ' + (r2.P2.x - r2.P1.x) + ',' + (r2.P2.y - r2.P1.y) + ' l ' + (r2.P3.x - r2.P2.x) + ',' + (r2.P3.y - r2.P2.y))
+                    ray2p.setAttribute('d', 'M ' + r2.P3.x + ',' + r2.P3.y + ' l ' + (r2.P4.x - r2.P3.x) + ',' + (r2.P4.y - r2.P3.y) + ' l ' + (r2.P5.x - r2.P4.x) + ',' + (r2.P5.y - r2.P4.y))
+                    var r3 = {
+                        P1: {
+                            x: 0, y: mid.y - ray3Equation(-mid.x / 10 / rate)
+                        },
+                        P2: {
+                            x: object.x / 2 + mid.x, y: mid.y - ray3Equation(object.x / 20 / rate)
+                        },
+                        P3: {
+                            x: mid.x, y: mid.y - ray3Equation(0)
+                        },
+                        P4: {
+                            x: Math.abs(image.x / 2) + mid.x, y: mid.y - ray3Equation(Math.abs(image.x / 20 / rate))
+                        },
+                        P5: {
+                            x: window.innerWidth, y: mid.y - ray3Equation((window.innerWidth - mid.x) / 10 / rate)
+                        },
+                    }
+                    ray3n.setAttribute('d', 'M ' + r3.P1.x + ',' + r3.P1.y + ' l ' + (r3.P2.x - r3.P1.x) + ',' + (r3.P2.y - r3.P1.y) + ' l ' + (r3.P3.x - r3.P2.x) + ',' + (r3.P3.y - r3.P2.y))
+                    ray3p.setAttribute('d', 'M ' + r3.P3.x + ',' + r3.P3.y + ' l ' + (r3.P4.x - r3.P3.x) + ',' + (r3.P4.y - r3.P3.y) + ' l ' + (r3.P5.x - r3.P4.x) + ',' + (r3.P5.y - r3.P4.y))
+                    // console.log(object.x * aͥiͣ / (object.x + aͥiͣ), aͥiͣ - aͥiͣ ** 2 / (object.x + aͥiͣ), 1 / (1 / object.x + 1 / aͥiͣ))
+                    // console.log(-object.height / aͥiͣ * image.x + object.height, object.height / object.x * image.x, object.height / (object.x + aͥiͣ) * aͥiͣ)
+                    if (object.x > -aͥiͣ) {
+                        ray1h.style.stroke = '#f00';
+                        // ray2h.style.stroke = '#0f0';
+                        ray3h.style.stroke = '#00f';
+                        var h1 = [
+                            { x: 0, y: mid.y + object.height / aͥiͣ * (-mid.x) - object.height },
+                            { x: window.innerWidth, y: mid.y + object.height / aͥiͣ * (window.innerWidth - mid.x) - object.height }
+                        ]
+                        // var h2=[
+                        //     {x: 0, y: mid.y-object.height/object.x*(-mid.x)},
+                        //     {x: window.innerWidth, y: mid.y-object.height/object.x*(window.innerWidth-mid.x)}
+                        // ]
+                        var h3 = [
+                            { x: 0, y: mid.y - object.height / (object.x + aͥiͣ) * aͥiͣ },
+                            { x: window.innerWidth, y: mid.y - object.height / (object.x + aͥiͣ) * aͥiͣ }
+                        ]
+                        ray1h.setAttribute('d', 'M ' + h1[0].x + ',' + h1[0].y + ' l ' + (h1[1].x - h1[0].x) + ',' + (h1[1].y - h1[0].y))
+                        // ray2h.setAttribute('d', 'M ' + h2[0].x + ',' + h2[0].y + ' l ' + (h2[1].x - h2[0].x) + ',' + (h2[1].y - h2[0].y))
+                        ray3h.setAttribute('d', 'M ' + h3[0].x + ',' + h3[0].y + ' l ' + (h3[1].x - h3[0].x) + ',' + (h3[1].y - h3[0].y))
+                    } else {
+                        ray1h.style.stroke = /*ray2h.style.stroke =*/ ray3h.style.stroke = 'none';
+                    }
+                }
+            }
+        }
+
+        onwheel = e => {
+            if (!e.ctrlKey) {
+                var sign = -e.deltaY / Math.abs(e.deltaY);
+                var movables = document.querySelectorAll('[movable][d]');
+                if (e.shiftKey) for (movable of movables) {
+                    if (movable.getAttribute('movable').includes('x')) {
+                        var arr = movable.getAttribute('d').split('M ')
+                        var where = arr[1].indexOf(' ');
+                        var str = arr[1].slice(0, where)
+                        var arr2 = str.split(',');
+                        var strAll = 'M ' + (Number(arr2[0]) + sign * 10 * rate) + ',' + arr2[1] + arr[1].slice(where, arr[1].length)
+                        movable.setAttribute('d', strAll)
+                    }
+                }
+                else for (movable of movables) {
+                    if (movable.getAttribute('movable').includes('y')) {
+                        var arr = movable.getAttribute('d').split('M ')
+                        var where = arr[1].indexOf(' ');
+                        var str = arr[1].slice(0, where)
+                        var arr2 = str.split(',');
+                        var strAll = 'M ' + arr2[0] + ',' + (Number(arr2[1]) + sign * 10 * rate) + arr[1].slice(where, arr[1].length)
+                        movable.setAttribute('d', strAll)
+                    }
+                }
+                movables = document.querySelectorAll('text');
+                if (e.shiftKey) for (movable of movables) {
+                    if (movable.hasAttribute('x'))
+                        movable.setAttribute('x', Number(movable.getAttribute('x')) + sign * 10 * rate)
+                } else for (movable of movables) {
+                    if (movable.hasAttribute('y'))
+                        movable.setAttribute('y', Number(movable.getAttribute('y')) + sign * 10 * rate)
+                }
+                if (e.shiftKey) move.x += sign; else move.y += sign;
+                ꓩ()
+            }
+        }
+
+        object.onmousedown = e => {
+            document.onmousemove = e => {
+                ƒ('html').style.cursor = object.style.cursor = 'grabbing';
+                object.height = mid.y - e.y;
+                object.x = e.x - mid.x;
+                ꓩ()
+            }
+        };
+
+        foyerImage.onmousedown = foyerObjet.onmousedown = e => {
+            document.onmousemove = e => {
+                ƒ('html').style.cursor = foyerImage.style.cursor = foyerObjet.style.cursor = 'grabbing';
+                if (e.x - mid.x != 0)
+                    aͥiͣ = Math.abs(e.x - mid.x);
+                ꓩ()
+            }
+        };
+        document.onmouseup = e => {
+            document.onmousemove = () => { }
+            ƒ('html').style.cursor = 'unset';
+            object.style.cursor = foyerImage.style.cursor = foyerObjet.style.cursor = 'grab';
+            var grabs = document.querySelectorAll('[grabbing]')
+            for (grab of grabs) grab.removeAttribute('grabbing');
+        };
+
+        var options = ƒ('[options]');
+        oncontextmenu = e => {
+            e.preventDefault()
+            options.style.left = e.x + 'px';
+            options.style.top = e.y + 'px';
+            options.style.display = 'unset';
+        }
+
+        onclick = e => {
+            var el = { left: options.offsetLeft, right: options.offsetLeft + options.offsetWidth, top: options.offsetTop, bottom: options.offsetTop + options.offsetHeight };
+            if (e.x < el.left || e.x > el.right || e.y < el.top || e.y > el.bottom)
+                options.style.display = 'none';
+        }
+        console.log(ƒ('*').scrollTop)
+
+        var disp = document.querySelectorAll('[display]');
+        for (dis of disp) dis.onmousedown = e => {
+            var element = e.target
+            while (!element.hasAttribute('display') && !element.tagName != 'HTML')
+                element = element.parentElement;
+            if (e.target.hasAttribute('remove'))
+                element.style.display = 'none';
+            else {
+                var x1 = e.x - element.offsetLeft, y1 = e.y - element.offsetTop;
+                element.toggleAttribute('grabbing')
+                e.target.toggleAttribute('grabbing')
+                ƒ('html').style.cursor = 'grabbing';
+                if (!element.hasAttribute('options'))
+                    ƒ('body').insertAdjacentElement('beforeend', element);
+                document.onmousemove = e => {
+                    element.style.left = e.x - x1 + 'px';
+                    element.style.top = e.y - y1 + 'px';
+                }
+            }
+        };
+
+        montrerValeurs = () => {
+            ƒ('[valeurs]').style.display = 'unset';
+            ƒ('[valeurs]').style.left = ƒ('[valeurs]').style.top = 0;
+        }
+        montrerEquations = () => {
+            eqX = ƒ('[equationsX]'), eqY = ƒ('[equationsY]'), eqγ = ƒ('[equationsγ]');
+            eqX.style.display = eqY.style.display = eqγ.style.display = 'unset';
+            eqX.style.left = window.innerWidth - eqX.offsetWidth + 'px';
+            eqY.style.left = window.innerWidth - eqY.offsetWidth + 'px';
+            eqγ.style.left = window.innerWidth - eqγ.offsetWidth + 'px';
+            eqX.style.top = 0
+            eqY.style.top = eqX.offsetHeight + window.innerHeight / 50 + 'px';
+            eqγ.style.top = eqY.offsetHeight + eqY.offsetTop + window.innerHeight / 50 + 'px';
+        }
+        arrondir = value => {
+            round = Number(value)
+            ꓩ()
+        }
+    </script>
+</body>
+
+</html>
